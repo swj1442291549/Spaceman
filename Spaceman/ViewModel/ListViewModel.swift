@@ -2,14 +2,18 @@ import Foundation
 import SwiftUI
 
 class ListViewModel: ObservableObject {
-    @Published var currentSpaceNumber: Int = 1
+    @Published var spaces: [Space] = []
     @Published var randomNumbers: [Int] = []
     private var spaceObserver: SpaceObserver
     
     init(spaceObserver: SpaceObserver) {
         self.spaceObserver = spaceObserver
-        self.spaceObserver.delegate = self
+        self.spaceObserver.addDelegate(self)
         generateRandomNumbers()
+    }
+    
+    deinit {
+        spaceObserver.removeDelegate(self)
     }
     
     func generateRandomNumbers() {
@@ -19,11 +23,15 @@ class ListViewModel: ObservableObject {
 
 extension ListViewModel: SpaceObserverDelegate {
     func didUpdateSpaces(spaces: [Space]) {
-        if let currentSpace = spaces.first(where: { $0.isCurrentSpace }) {
-            DispatchQueue.main.async {
-                self.currentSpaceNumber = currentSpace.spaceNumber
-                self.generateRandomNumbers() // Generate new numbers when space changes
-            }
+        print("ListViewModel received spaces: \(spaces.count)")
+        for space in spaces {
+            print("Space: id=\(space.spaceID), number=\(space.spaceNumber), isCurrent=\(space.isCurrentSpace)")
+        }
+        
+        DispatchQueue.main.async {
+            self.spaces = spaces
+            print("ListViewModel updated spaces array: \(self.spaces.count)")
+            self.generateRandomNumbers() // Generate new numbers when space changes
         }
     }
 } 

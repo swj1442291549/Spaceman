@@ -10,7 +10,7 @@ struct ListView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             HStack {
-                Text("Space \(viewModel.currentSpaceNumber)")
+                Text("Spaces")
                     .font(.headline)
                 
                 Spacer()
@@ -24,16 +24,19 @@ struct ListView: View {
             }
             .padding(.horizontal)
             
-            List(viewModel.randomNumbers, id: \.self) { number in
+            List(viewModel.spaces, id: \.spaceID) { space in
                 HStack {
-                    Text("\(number)")
+                    Text("Space \(space.spaceNumber)")
                         .font(.system(.body, design: .monospaced))
+                        .foregroundColor(space.isCurrentSpace ? .blue : .primary)
                     
                     Spacer()
                     
-                    Text("Space \(viewModel.currentSpaceNumber)")
-                        .foregroundColor(.secondary)
-                        .font(.caption)
+                    if space.isFullScreen {
+                        Text("Fullscreen")
+                            .foregroundColor(.secondary)
+                            .font(.caption)
+                    }
                 }
             }
         }

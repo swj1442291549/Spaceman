@@ -27,7 +27,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         listWindow.makeKeyAndOrderFront(nil)
         NSApp.activate(ignoringOtherApps: true)
         
-        spaceObserver.delegate = self
+        spaceObserver.addDelegate(self)
         spaceObserver.updateSpaceInformation()
         KeyboardShortcuts.onKeyUp(for: .refresh) { [] in
             self.spaceObserver.updateSpaceInformation()

@@ -12,7 +12,7 @@ class SpaceObserver {
     private let workspace = NSWorkspace.shared
     private let conn = _CGSDefaultConnection()
     private let defaults = UserDefaults.standard
-    weak var delegate: SpaceObserverDelegate?
+    private var delegates: [SpaceObserverDelegate] = []
     
     init() {
         workspace.notificationCenter.addObserver(
@@ -27,12 +27,22 @@ class SpaceObserver {
             object: nil)
     }
     
+    func addDelegate(_ delegate: SpaceObserverDelegate) {
+        delegates.append(delegate)
+    }
+    
+    func removeDelegate(_ delegate: SpaceObserverDelegate) {
+        delegates.removeAll { $0 === delegate as AnyObject }
+    }
+    
     @objc public func updateSpaceInformation() {
         let displays = CGSCopyManagedDisplaySpaces(conn) as! [NSDictionary]
         var activeSpaceID = -1
-        var spacesIndex = 0
         var allSpaces = [Space]()
         var updatedDict = [String: SpaceNameInfo]()
+        var globalSpaceNumber = 1
+        
+        print("SpaceObserver: Processing \(displays.count) displays")
         
         for d in displays {
             guard let currentSpaces = d["Current Space"] as? [String: Any],
@@ -43,6 +53,7 @@ class SpaceObserver {
             }
             
             activeSpaceID = currentSpaces["ManagedSpaceID"] as! Int
+            print("SpaceObserver: Display \(displayID) has \(spaces.count) spaces, active space ID: \(activeSpaceID)")
             
             if activeSpaceID == -1 {
                 DispatchQueue.main.async {
@@ -51,22 +62,18 @@ class SpaceObserver {
                 return
             }
 
-            var lastDesktopNumber = 0
-
             for s in spaces {
                 let spaceID = String(s["ManagedSpaceID"] as! Int)
-                let spaceNumber: Int = spacesIndex + 1
                 let isCurrentSpace = activeSpaceID == s["ManagedSpaceID"] as! Int
                 let isFullScreen = s["TileLayoutManager"] as? [String: Any] != nil
                 var desktopNumber : Int?
                 if !isFullScreen {
-                    lastDesktopNumber += 1
-                    desktopNumber = lastDesktopNumber
+                    desktopNumber = globalSpaceNumber
                 }
                 var space = Space(displayID: displayID,
                                   spaceID: spaceID,
                                   spaceName: "N/A",
-                                  spaceNumber: spaceNumber,
+                                  spaceNumber: globalSpaceNumber,
                                   desktopNumber: desktopNumber,
                                   isCurrentSpace: isCurrentSpace,
                                   isFullScreen: isFullScreen)
@@ -85,14 +92,20 @@ class SpaceObserver {
                     }
                 }
                 
-                let nameInfo = SpaceNameInfo(spaceNum: spaceNumber, spaceName: space.spaceName)
+                let nameInfo = SpaceNameInfo(spaceNum: globalSpaceNumber, spaceName: space.spaceName)
                 updatedDict[spaceID] = nameInfo
                 allSpaces.append(space)
-                spacesIndex += 1
+                if !isFullScreen {
+                    globalSpaceNumber += 1
+                }
             }
         }
+        
+        print("SpaceObserver: Sending \(allSpaces.count) spaces to \(delegates.count) delegates")
         defaults.set(try? PropertyListEncoder().encode(updatedDict), forKey: "spaceNames")
-        delegate?.didUpdateSpaces(spaces: allSpaces)
+        for delegate in delegates {
+            delegate.didUpdateSpaces(spaces: allSpaces)
+        }
     }
 }
 
