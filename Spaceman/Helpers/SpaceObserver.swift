@@ -14,6 +14,7 @@ class SpaceObserver {
     private let conn = _CGSDefaultConnection()
     private let defaults = UserDefaults.standard
     private var delegates: [SpaceObserverDelegate] = []
+    private var windowCache: [String: [Window]] = [:] // Cache windows for each space
     
     init() {
         workspace.notificationCenter.addObserver(
@@ -131,9 +132,14 @@ class SpaceObserver {
                     }
                 }
                 
-                // Only add windows to the current space
+                // Update windows based on whether this is the current space
                 if isCurrentSpace {
+                    // Update cache and space windows for current space
+                    windowCache[spaceID] = currentWindows
                     space.windows = currentWindows
+                } else {
+                    // Use cached windows for non-current spaces
+                    space.windows = windowCache[spaceID] ?? []
                 }
                 
                 let nameInfo = SpaceNameInfo(spaceNum: globalSpaceNumber, spaceName: space.spaceName)
