@@ -7,6 +7,12 @@
 
 import Foundation
 
+struct Window {
+    let title: String
+    let appName: String
+    let isMinimized: Bool
+}
+
 struct Space {
     var displayID: String
     var spaceID: String
@@ -15,4 +21,5 @@ struct Space {
     var desktopNumber: Int?
     var isCurrentSpace: Bool
     var isFullScreen: Bool
+    var windows: [Window] = []
 }

@@ -23,14 +23,10 @@ class ListViewModel: ObservableObject {
 
 extension ListViewModel: SpaceObserverDelegate {
     func didUpdateSpaces(spaces: [Space]) {
-        print("ListViewModel received spaces: \(spaces.count)")
-        for space in spaces {
-            print("Space: id=\(space.spaceID), number=\(space.spaceNumber), isCurrent=\(space.isCurrentSpace)")
-        }
-        
+//        print("ListViewModel received spaces: \(spaces.count)")
         DispatchQueue.main.async {
             self.spaces = spaces
-            print("ListViewModel updated spaces array: \(self.spaces.count)")
+//            print("ListViewModel updated spaces array: \(self.spaces.count)")
             self.generateRandomNumbers() // Generate new numbers when space changes
         }
     }

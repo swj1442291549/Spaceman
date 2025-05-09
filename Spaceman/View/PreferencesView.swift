@@ -38,7 +38,7 @@ struct PreferencesView: View {
         .ignoresSafeArea()
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .onAppear(perform: prefsVM.loadData)
-        .onChange(of: data) { _ in
+        .onChange(of: data) { _, _ in
             prefsVM.loadData()
         }
         
@@ -114,8 +114,8 @@ struct PreferencesView: View {
                 shortcutRecorder.disabled(autoRefreshSpaces ? true : false)
             }
             .padding()
-            .onChange(of: autoRefreshSpaces) { enabled in
-                if enabled {
+            .onChange(of: autoRefreshSpaces) { oldValue, newValue in
+                if newValue {
                     prefsVM.startTimer()
                     KeyboardShortcuts.disable(.refresh)
                 }
@@ -140,7 +140,7 @@ struct PreferencesView: View {
                     .disabled(selectedStyle == 0) // Rectangles style
             }
             .padding()
-            .onChange(of: hideInactiveSpaces) { _ in
+            .onChange(of: hideInactiveSpaces) { _, _ in
                 NotificationCenter.default.post(name: NSNotification.Name(rawValue: "ButtonPressed"), object: nil)
             }
 
@@ -166,12 +166,12 @@ struct PreferencesView: View {
             Text("Rectangles with desktop numbers").tag(SpacemanStyle.desktopNumbersAndRects.rawValue)
             Text("Named spaces").tag(SpacemanStyle.text.rawValue)
         }
-        .onChange(of: selectedStyle) { val in
-            if val == 0 { // Rectangles style
+        .onChange(of: selectedStyle) { oldValue, newValue in
+            if newValue == 0 { // Rectangles style
                 hideInactiveSpaces = false
             }
             
-            selectedStyle = val
+            selectedStyle = newValue
             NotificationCenter.default.post(name: NSNotification.Name(rawValue: "ButtonPressed"), object: nil)
         }
     }

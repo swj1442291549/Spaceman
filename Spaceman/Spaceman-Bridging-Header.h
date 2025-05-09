@@ -9,8 +9,11 @@
 #define Spaceman_Bridging_Header_h
 
 #import <Foundation/Foundation.h>
+#import <CoreGraphics/CoreGraphics.h>
+#import <ApplicationServices/ApplicationServices.h>
 
-int _CGSDefaultConnection();
+// Core Graphics functions
+int _CGSDefaultConnection(void);
 id CGSCopyManagedDisplaySpaces(int conn);
 id CGSCopyActiveMenuBarDisplayIdentifier(int conn);
 

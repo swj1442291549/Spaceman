@@ -12,9 +12,22 @@ struct ListView: View {
             DisclosureGroup(
                 isExpanded: .constant(true),
                 content: {
-                    ForEach(1...3, id: \.self) { index in
-                        Text("Item \(index)")
+                    if space.windows.isEmpty {
+                        Text("No windows")
+                            .foregroundColor(.secondary)
                             .padding(.leading)
+                    } else {
+                        ForEach(space.windows, id: \.title) { window in
+                            HStack {
+                                Text(window.title)
+                                    .lineLimit(1)
+                                Spacer()
+                                Text(window.appName)
+                                    .foregroundColor(.secondary)
+                                    .font(.caption)
+                            }
+                            .padding(.leading)
+                        }
                     }
                 },
                 label: {

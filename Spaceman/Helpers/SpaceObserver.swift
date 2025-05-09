@@ -7,6 +7,7 @@
 
 import Cocoa
 import Foundation
+import ApplicationServices
 
 class SpaceObserver {
     private let workspace = NSWorkspace.shared
@@ -25,6 +26,14 @@ class SpaceObserver {
             selector: #selector(updateSpaceInformation),
             name: NSNotification.Name("ButtonPressed"),
             object: nil)
+        
+        // Request accessibility permissions if needed
+        requestAccessibilityPermission()
+    }
+    
+    private func requestAccessibilityPermission() {
+        let options = [kAXTrustedCheckOptionPrompt.takeUnretainedValue() as String: true] as CFDictionary
+        AXIsProcessTrustedWithOptions(options)
     }
     
     func addDelegate(_ delegate: SpaceObserverDelegate) {
@@ -35,6 +44,36 @@ class SpaceObserver {
         delegates.removeAll { $0 === delegate as AnyObject }
     }
     
+    private func getCurrentWindows() -> [Window] {
+        let windowList = CGWindowListCopyWindowInfo(.optionOnScreenOnly, kCGNullWindowID) as! [[String: Any]]
+        var windows: [Window] = []
+        
+        for window in windowList {
+            guard let bounds = window[kCGWindowBounds as String] as? [String: Any],
+                  let ownerName = window[kCGWindowOwnerName as String] as? String,
+                  let layer = window[kCGWindowLayer as String] as? Int,
+                  let alpha = window[kCGWindowAlpha as String] as? Float
+            else {
+                continue
+            }
+            
+            // Skip windows that are not visible or are system windows
+            if layer != 0 || alpha == 0 || ownerName == "Window Server" {
+                continue
+            }
+            
+            let isMinimized = bounds["Height" as String] as? Double == 0
+            
+            windows.append(Window(
+                title: ownerName,
+                appName: ownerName,
+                isMinimized: isMinimized
+            ))
+        }
+        
+        return windows
+    }
+    
     @objc public func updateSpaceInformation() {
         let displays = CGSCopyManagedDisplaySpaces(conn) as! [NSDictionary]
         var activeSpaceID = -1
@@ -42,7 +81,8 @@ class SpaceObserver {
         var updatedDict = [String: SpaceNameInfo]()
         var globalSpaceNumber = 1
         
-        print("SpaceObserver: Processing \(displays.count) displays")
+        // Get current windows once
+        let currentWindows = getCurrentWindows()
         
         for d in displays {
             guard let currentSpaces = d["Current Space"] as? [String: Any],
@@ -53,7 +93,6 @@ class SpaceObserver {
             }
             
             activeSpaceID = currentSpaces["ManagedSpaceID"] as! Int
-            print("SpaceObserver: Display \(displayID) has \(spaces.count) spaces, active space ID: \(activeSpaceID)")
             
             if activeSpaceID == -1 {
                 DispatchQueue.main.async {
@@ -92,6 +131,11 @@ class SpaceObserver {
                     }
                 }
                 
+                // Only add windows to the current space
+                if isCurrentSpace {
+                    space.windows = currentWindows
+                }
+                
                 let nameInfo = SpaceNameInfo(spaceNum: globalSpaceNumber, spaceName: space.spaceName)
                 updatedDict[spaceID] = nameInfo
                 allSpaces.append(space)
@@ -101,7 +145,6 @@ class SpaceObserver {
             }
         }
         
-        print("SpaceObserver: Sending \(allSpaces.count) spaces to \(delegates.count) delegates")
         defaults.set(try? PropertyListEncoder().encode(updatedDict), forKey: "spaceNames")
         for delegate in delegates {
             delegate.didUpdateSpaces(spaces: allSpaces)
