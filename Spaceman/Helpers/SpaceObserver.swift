@@ -53,7 +53,8 @@ class SpaceObserver {
             guard let bounds = window[kCGWindowBounds as String] as? [String: Any],
                   let ownerName = window[kCGWindowOwnerName as String] as? String,
                   let layer = window[kCGWindowLayer as String] as? Int,
-                  let alpha = window[kCGWindowAlpha as String] as? Float
+                  let alpha = window[kCGWindowAlpha as String] as? Float,
+                  let pid = window[kCGWindowOwnerPID as String] as? pid_t
             else {
                 continue
             }
@@ -67,13 +68,29 @@ class SpaceObserver {
             
             // Get app icon
             var appIcon: NSImage? = nil
-            if let pid = window[kCGWindowOwnerPID as String] as? pid_t,
-               let app = NSRunningApplication(processIdentifier: pid) {
+            if let app = NSRunningApplication(processIdentifier: pid) {
                 appIcon = app.icon
             }
             
+            // Get window title using Accessibility API
+            var windowTitle = ownerName
+            let appElement = AXUIElementCreateApplication(pid)
+            var value: AnyObject?
+            let result = AXUIElementCopyAttributeValue(appElement, kAXWindowsAttribute as CFString, &value)
+            if result == .success,
+               let windowList = value as? [AXUIElement] {
+                for windowElement in windowList {
+                    var titleValue: AnyObject?
+                    if AXUIElementCopyAttributeValue(windowElement, kAXTitleAttribute as CFString, &titleValue) == .success,
+                       let title = titleValue as? String {
+                        windowTitle = title
+                        break
+                    }
+                }
+            }
+            
             windows.append(Window(
-                title: ownerName,
+                title: windowTitle,
                 appName: ownerName,
                 isMinimized: isMinimized,
                 appIcon: appIcon

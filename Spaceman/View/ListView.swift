@@ -24,12 +24,14 @@ struct ListView: View {
                                         .resizable()
                                         .frame(width: 16, height: 16)
                                 }
-                                Text(window.title)
-                                    .lineLimit(1)
+                                VStack(alignment: .leading) {
+                                    Text(window.title)
+                                        .lineLimit(1)
+                                    Text(window.appName)
+                                        .foregroundColor(.secondary)
+                                        .font(.caption)
+                                }
                                 Spacer()
-                                Text(window.appName)
-                                    .foregroundColor(.secondary)
-                                    .font(.caption)
                             }
                             .padding(.leading)
                         }
