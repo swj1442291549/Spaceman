@@ -91,7 +91,6 @@ class SpaceObserver {
                 spacesIndex += 1
             }
         }
-        
         defaults.set(try? PropertyListEncoder().encode(updatedDict), forKey: "spaceNames")
         delegate?.didUpdateSpaces(spaces: allSpaces)
     }
