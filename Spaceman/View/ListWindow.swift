@@ -10,14 +10,25 @@ class ListWindow: NSWindow {
         )
         
         self.title = "List"
-        self.center()
-        self.setFrameAutosaveName("List Window")
         self.isReleasedWhenClosed = false
-        self.level = .mainMenu
+        self.level = .floating
         self.backgroundColor = .clear
         self.isOpaque = false
         self.hasShadow = false
         self.collectionBehavior = [.canJoinAllSpaces, .stationary]
         self.contentView = NSHostingView(rootView: ListView(spaceObserver: spaceObserver))
     }
-} 
+    
+    func onHeightChange(newHeight: CGSize) {
+        print("onHeightChange called with newHeight: \(newHeight)")
+        guard let screenFrame = self.screen?.visibleFrame ?? NSScreen.main?.visibleFrame else {
+            print("No screen available for centering.")
+            return
+        }
+        let newOriginY = screenFrame.origin.y + (screenFrame.height - newHeight.height) / 2
+        let newOrigin = CGPoint(x: self.frame.origin.x, y: newOriginY)
+        let newFrame = CGRect(origin: newOrigin, size: CGSize(width: self.frame.width, height: newHeight.height))
+        print("Setting new frame: \(newFrame)")
+        self.setFrame(newFrame, display: true, animate: true)
+    }
+}
