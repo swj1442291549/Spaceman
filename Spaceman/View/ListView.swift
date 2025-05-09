@@ -19,6 +19,11 @@ struct ListView: View {
                     } else {
                         ForEach(space.windows, id: \.title) { window in
                             HStack {
+                                if let icon = window.appIcon {
+                                    Image(nsImage: icon)
+                                        .resizable()
+                                        .frame(width: 16, height: 16)
+                                }
                                 Text(window.title)
                                     .lineLimit(1)
                                 Spacer()

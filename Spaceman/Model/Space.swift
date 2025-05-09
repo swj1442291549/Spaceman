@@ -6,11 +6,13 @@
 //
 
 import Foundation
+import AppKit
 
 struct Window {
     let title: String
     let appName: String
     let isMinimized: Bool
+    let appIcon: NSImage?
 }
 
 struct Space {

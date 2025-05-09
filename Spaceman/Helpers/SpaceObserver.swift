@@ -65,10 +65,18 @@ class SpaceObserver {
             
             let isMinimized = bounds["Height" as String] as? Double == 0
             
+            // Get app icon
+            var appIcon: NSImage? = nil
+            if let pid = window[kCGWindowOwnerPID as String] as? pid_t,
+               let app = NSRunningApplication(processIdentifier: pid) {
+                appIcon = app.icon
+            }
+            
             windows.append(Window(
                 title: ownerName,
                 appName: ownerName,
-                isMinimized: isMinimized
+                isMinimized: isMinimized,
+                appIcon: appIcon
             ))
         }
         
