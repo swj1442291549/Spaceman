@@ -2,9 +2,11 @@ import SwiftUI
 
 struct ListView: View {
     @StateObject private var viewModel: ListViewModel
+    private let spaceObserver: SpaceObserver
     
     init(spaceObserver: SpaceObserver) {
         _viewModel = StateObject(wrappedValue: ListViewModel(spaceObserver: spaceObserver))
+        self.spaceObserver = spaceObserver
     }
     
     var body: some View {
@@ -18,22 +20,27 @@ struct ListView: View {
                             .padding(.leading)
                     } else {
                         ForEach(space.windows, id: \.title) { window in
-                            HStack {
-                                if let icon = window.appIcon {
-                                    Image(nsImage: icon)
-                                        .resizable()
-                                        .frame(width: 16, height: 16)
+                            Button(action: {
+                                spaceObserver.activateWindow(pid: window.pid, title: window.title)
+                            }) {
+                                HStack {
+                                    if let icon = window.appIcon {
+                                        Image(nsImage: icon)
+                                            .resizable()
+                                            .frame(width: 16, height: 16)
+                                    }
+                                    VStack(alignment: .leading) {
+                                        Text(window.title)
+                                            .lineLimit(1)
+                                        Text(window.appName)
+                                            .foregroundColor(.secondary)
+                                            .font(.caption)
+                                    }
+                                    Spacer()
                                 }
-                                VStack(alignment: .leading) {
-                                    Text(window.title)
-                                        .lineLimit(1)
-                                    Text(window.appName)
-                                        .foregroundColor(.secondary)
-                                        .font(.caption)
-                                }
-                                Spacer()
+                                .padding(.leading)
                             }
-                            .padding(.leading)
+                            .buttonStyle(.plain)
                         }
                     }
                 },

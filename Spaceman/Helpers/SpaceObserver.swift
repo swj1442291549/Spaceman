@@ -93,7 +93,8 @@ class SpaceObserver {
                 title: windowTitle,
                 appName: ownerName,
                 isMinimized: isMinimized,
-                appIcon: appIcon
+                appIcon: appIcon,
+                pid: pid
             ))
         }
         
@@ -179,6 +180,59 @@ class SpaceObserver {
         defaults.set(try? PropertyListEncoder().encode(updatedDict), forKey: "spaceNames")
         for delegate in delegates {
             delegate.didUpdateSpaces(spaces: allSpaces)
+        }
+    }
+    
+    func activateWindow(pid: pid_t, title: String) {
+        print("Attempting to activate window: \(title) with PID: \(pid)")
+        
+        // Get all windows
+        let windowList = CGWindowListCopyWindowInfo(.optionOnScreenOnly, kCGNullWindowID) as! [[String: Any]]
+        print("Total windows found: \(windowList.count)")
+        
+        // Find the window with matching title and PID
+        for window in windowList {
+            guard let windowPid = window[kCGWindowOwnerPID as String] as? pid_t,
+                  windowPid == pid
+            else {
+                continue
+            }
+            
+            print("Found window with matching PID")
+            print("Window info: \(window)")
+            
+            // Get the window's owner application
+            if let app = NSRunningApplication(processIdentifier: pid) {
+                print("Activating application: \(app.localizedName ?? "unknown")")
+                // Activate the application
+                app.activate(options: .activateAllWindows)
+                
+                // Use Accessibility API to get and activate windows
+                let appElement = AXUIElementCreateApplication(pid)
+                var value: AnyObject?
+                let result = AXUIElementCopyAttributeValue(appElement, kAXWindowsAttribute as CFString, &value)
+                
+                if result == .success,
+                   let windowList = value as? [AXUIElement] {
+                    print("Found \(windowList.count) windows through Accessibility API")
+                    
+                    for windowElement in windowList {
+                        var titleValue: AnyObject?
+                        if AXUIElementCopyAttributeValue(windowElement, kAXTitleAttribute as CFString, &titleValue) == .success,
+                           let windowTitle = titleValue as? String {
+                            print("Window title from Accessibility API: \(windowTitle)")
+                            
+                            // Try to bring window to front
+                            AXUIElementSetAttributeValue(windowElement, kAXMainAttribute as CFString, true as CFTypeRef)
+                            AXUIElementPerformAction(windowElement, kAXRaiseAction as CFString)
+                            
+                            // Try to focus the window
+                            AXUIElementSetAttributeValue(windowElement, kAXFocusedAttribute as CFString, true as CFTypeRef)
+                        }
+                    }
+                }
+            }
+            break
         }
     }
 }

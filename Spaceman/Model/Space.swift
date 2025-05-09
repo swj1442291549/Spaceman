@@ -13,6 +13,7 @@ struct Window {
     let appName: String
     let isMinimized: Bool
     let appIcon: NSImage?
+    let pid: pid_t
 }
 
 struct Space {
