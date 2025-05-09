@@ -13,7 +13,11 @@ class ListWindow: NSWindow {
         self.center()
         self.setFrameAutosaveName("List Window")
         self.isReleasedWhenClosed = false
-        self.level = .floating
+        self.level = .mainMenu
+        self.backgroundColor = .clear
+        self.isOpaque = false
+        self.hasShadow = false
+        self.collectionBehavior = [.canJoinAllSpaces, .stationary]
         self.contentView = NSHostingView(rootView: ListView(spaceObserver: spaceObserver))
     }
 } 

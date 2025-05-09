@@ -35,6 +35,8 @@ struct ListView: View {
             )
         }
         .frame(minWidth: 300, minHeight: 400)
+        .background(.ultraThinMaterial)
+        .cornerRadius(10)
     }
 }
 
