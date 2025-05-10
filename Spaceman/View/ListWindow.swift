@@ -7,7 +7,7 @@ class ListWindow: NSWindow {
 
         let screenFrame = NSScreen.main?.visibleFrame ?? NSRect.zero
         let initialX = screenFrame.maxX - 32  // Push half off the right edge
-        let initialY = screenFrame.minY
+        let initialY = screenFrame.minY + windowHeight / 2
 
         let initialFrame = NSRect(x: initialX, y: initialY, width: windowWidth, height: windowHeight)
 
@@ -26,7 +26,11 @@ class ListWindow: NSWindow {
         self.hasShadow = false
         self.collectionBehavior = [.canJoinAllSpaces, .stationary]
 
-        self.contentView = NSHostingView(rootView: ListView(spaceObserver: spaceObserver))
+        self.contentView = NSHostingView(rootView: ListView(spaceObserver: spaceObserver, onHeightChange: { [weak self] heightValue in
+            if let strongSelf = self {
+                strongSelf.onHeightChange(newHeight: CGSize(width: windowWidth, height: heightValue))
+            }
+        }))
 
         // Force frame after display to avoid automatic repositioning
         DispatchQueue.main.async {
@@ -35,16 +39,16 @@ class ListWindow: NSWindow {
         }
     }
 
-//    func onHeightChange(newHeight: CGSize) {
-//        print("onHeightChange called with newHeight: \(newHeight)")
-//        guard let screenFrame = self.screen?.visibleFrame ?? NSScreen.main?.visibleFrame else {
-//            print("No screen available for centering.")
-//            return
-//        }
-//        let newOriginY = screenFrame.origin.y + (screenFrame.height - newHeight.height) / 2
-//        let newOrigin = CGPoint(x: self.frame.origin.x, y: newOriginY)
-//        let newFrame = CGRect(origin: newOrigin, size: CGSize(width: self.frame.width, height: newHeight.height))
-//        print("Setting new frame: \(newFrame)")
-//        self.setFrame(newFrame, display: true, animate: true)
-//    }
+    func onHeightChange(newHeight: CGSize) {
+        print("onHeightChange called with newHeight: \(newHeight)")
+        guard let screenFrame = self.screen?.visibleFrame ?? NSScreen.main?.visibleFrame else {
+            print("No screen available for centering.")
+            return
+        }
+        let newOriginY = screenFrame.minY + (newHeight.height) / 2
+        let newOrigin = CGPoint(x: self.frame.origin.x, y: newOriginY)
+        let newFrame = CGRect(origin: newOrigin, size: CGSize(width: self.frame.width, height: newHeight.height))
+        print("Setting new frame: \(newFrame)")
+        self.setFrame(newFrame, display: true, animate: true)
+    }
 }
