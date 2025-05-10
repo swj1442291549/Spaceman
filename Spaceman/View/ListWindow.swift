@@ -6,7 +6,7 @@ class ListWindow: NSWindow {
         let windowHeight: CGFloat = 400
 
         let screenFrame = NSScreen.main?.visibleFrame ?? NSRect.zero
-        let initialX = screenFrame.maxX - 32  // Push half off the right edge
+        let initialX = screenFrame.maxX - 36  // Push half off the right edge
         let initialY = screenFrame.minY + windowHeight / 2
 
         let initialFrame = NSRect(x: initialX, y: initialY, width: windowWidth, height: windowHeight)
@@ -48,7 +48,6 @@ class ListWindow: NSWindow {
         
         // Only update if height is valid
         if newHeight.height <= 0 {
-            print("Invalid height value: \(newHeight.height), skipping update")
             return
         }
         

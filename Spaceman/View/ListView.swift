@@ -17,7 +17,6 @@ struct ListView: View {
         _viewModel = StateObject(wrappedValue: ListViewModel(spaceObserver: spaceObserver))
         self.spaceObserver = spaceObserver
         self.onHeightChange = onHeightChange
-        print("ListView init: onHeightChange assigned")
     }
     
     var body: some View {
@@ -44,7 +43,7 @@ struct ListView: View {
                                     Image(nsImage: icon)
                                         .resizable()
                                         .frame(width: 24, height: 24)
-                                        .padding(.leading, 4)
+                                        .padding(.leading, 0)
                                 }
                                 Text(window.title)
                                     .lineLimit(1)
@@ -73,7 +72,6 @@ struct ListView: View {
                 DispatchQueue.main.async {
                     if self.contentHeight != height {
                         self.contentHeight = height
-                        print("ListView onHeightChange: height \(height)")
                         onHeightChange(height)
                     }
                 }
