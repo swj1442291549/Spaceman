@@ -1,12 +1,23 @@
 import SwiftUI
 
+private struct HeightPreferenceKey: PreferenceKey {
+    static var defaultValue: CGFloat = 0
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = nextValue()
+    }
+}
+
 struct ListView: View {
     @StateObject private var viewModel: ListViewModel
     private let spaceObserver: SpaceObserver
+    var onHeightChange: (CGFloat) -> Void
+    @State private var contentHeight: CGFloat = 0
     
-    init(spaceObserver: SpaceObserver) {
+    init(spaceObserver: SpaceObserver, onHeightChange: @escaping (CGFloat) -> Void = { _ in }) {
         _viewModel = StateObject(wrappedValue: ListViewModel(spaceObserver: spaceObserver))
         self.spaceObserver = spaceObserver
+        self.onHeightChange = onHeightChange
+        print("ListView init: onHeightChange assigned")
     }
     
     var body: some View {
@@ -15,11 +26,9 @@ struct ListView: View {
                 VStack(alignment: .leading) {
                     HStack {
                         Text("S\(space.spaceNumber)")
-                            .font(.system(size: 16, weight: .medium, design: .monospaced))
+                            .font(.system(size: 14, weight: .medium, design: .monospaced))
                             .foregroundColor(space.isCurrentSpace ? .blue : .secondary)
-
                         Spacer()
-
                         if space.isFullScreen {
                             Text("Fullscreen")
                                 .foregroundColor(.secondary)
@@ -27,6 +36,7 @@ struct ListView: View {
                         }
                     }
                     .padding(.top, 8)
+                    
                     if !space.windows.isEmpty {
                         ForEach(space.windows, id: \.title) { window in
                             HStack(spacing: 8) {
@@ -52,6 +62,23 @@ struct ListView: View {
                 .padding(.horizontal, 8)
             }
         }
+        .overlay(
+            GeometryReader { geometry in
+                Color.clear
+                    .preference(key: HeightPreferenceKey.self, value: geometry.size.height)
+            }
+        )
+        .onPreferenceChange(HeightPreferenceKey.self) { height in
+            if height > 0 {
+                DispatchQueue.main.async {
+                    if self.contentHeight != height {
+                        self.contentHeight = height
+                        print("ListView onHeightChange: height \(height)")
+                        onHeightChange(height)
+                    }
+                }
+            }
+        }
         .background(.ultraThinMaterial)
         .frame(minWidth: 300)
         .cornerRadius(10)
@@ -59,5 +86,7 @@ struct ListView: View {
 }
 
 #Preview {
-    ListView(spaceObserver: SpaceObserver())
-} 
+    ListView(spaceObserver: SpaceObserver(), onHeightChange: { height in
+        print("ListView height: \(height)")
+    })
+}

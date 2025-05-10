@@ -45,10 +45,22 @@ class ListWindow: NSWindow {
             print("No screen available for centering.")
             return
         }
-        let newOriginY = screenFrame.minY + (newHeight.height) / 2
+        
+        // Only update if height is valid
+        if newHeight.height <= 0 {
+            print("Invalid height value: \(newHeight.height), skipping update")
+            return
+        }
+        
+        // Calculate new position to center vertically
+        let newOriginY = screenFrame.minY + (screenFrame.height - newHeight.height) / 2
         let newOrigin = CGPoint(x: self.frame.origin.x, y: newOriginY)
         let newFrame = CGRect(origin: newOrigin, size: CGSize(width: self.frame.width, height: newHeight.height))
+        
         print("Setting new frame: \(newFrame)")
-        self.setFrame(newFrame, display: true, animate: true)
+        // Use main thread to ensure UI updates properly
+        DispatchQueue.main.async {
+            self.setFrame(newFrame, display: true, animate: true)
+        }
     }
 }
