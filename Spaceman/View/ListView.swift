@@ -31,6 +31,8 @@ struct ListView: View {
                         Text("S\(space.spaceNumber)")
                             .font(.system(size: 14, weight: .medium, design: .monospaced))
                             .foregroundColor(space.isCurrentSpace ? .blue : .primary)
+                            .padding(.horizontal, 6)
+
                         Spacer()
                         if space.isFullScreen {
                             Text("Fullscreen")
@@ -39,15 +41,18 @@ struct ListView: View {
                         }
                     }
                     .padding(.top, 8)
+//                    .padding(.vertical, 2)
+
                     
                     if !space.windows.isEmpty {
                         ForEach(space.windows, id: \.title) { window in
-                            HStack(spacing: 8) {
+                            HStack(spacing: 0) {
                                 if let icon = window.appIcon {
                                     Image(nsImage: icon)
                                         .resizable()
                                         .frame(width: 24, height: 24)
                                         .padding(.leading, -4)
+                                        .padding(.horizontal, 8)
                                 }
                                 Text(window.title)
                                     .font(.system(size: 14, weight: .regular))
@@ -57,11 +62,9 @@ struct ListView: View {
                                     .fixedSize(horizontal: false, vertical: true)
                                 Spacer()
                             }
-                            .padding(.vertical, 4)
-                            .padding(.horizontal, 8)
                             .background(
-                                RoundedRectangle(cornerRadius: 4)
-                                    .fill(hoveredWindow?.pid == window.pid && hoveredWindow?.title == window.title ? Color.blue.opacity(0.1) : Color.clear)
+                                Rectangle()
+                                    .fill(hoveredWindow?.pid == window.pid && hoveredWindow?.title == window.title ? Color.blue : Color.clear)
                             )
                             .contentShape(Rectangle())
                             .onHover { isHovered in
@@ -78,8 +81,6 @@ struct ListView: View {
                         }
                     }
                 }
-                .padding(.vertical, 4)
-                .padding(.horizontal, 8)
             }
         }
         .overlay(
