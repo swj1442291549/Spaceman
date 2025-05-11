@@ -6,7 +6,8 @@ class ListWindow: NSWindow {
         let windowHeight: CGFloat = 400
 
         let screenFrame = NSScreen.main?.visibleFrame ?? NSRect.zero
-        let initialX = screenFrame.maxX - 36  // Push half off the right edge
+//        let initialX = screenFrame.maxX - 32
+        let initialX = 500.0
         let initialY = screenFrame.minY + windowHeight / 2
 
         let initialFrame = NSRect(x: initialX, y: initialY, width: windowWidth, height: windowHeight)

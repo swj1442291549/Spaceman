@@ -26,11 +26,11 @@ struct ListView: View {
                     HStack {
                         Text("S\(space.spaceNumber)")
                             .font(.system(size: 14, weight: .medium, design: .monospaced))
-                            .foregroundColor(space.isCurrentSpace ? .blue : .secondary)
+                            .foregroundColor(space.isCurrentSpace ? .blue : .primary)
                         Spacer()
                         if space.isFullScreen {
                             Text("Fullscreen")
-                                .foregroundColor(.secondary)
+                                .foregroundColor(.primary)
                                 .font(.caption)
                         }
                     }
@@ -43,7 +43,7 @@ struct ListView: View {
                                     Image(nsImage: icon)
                                         .resizable()
                                         .frame(width: 24, height: 24)
-                                        .padding(.leading, 0)
+                                        .padding(.leading, -4)
                                 }
                                 Text(window.title)
                                     .lineLimit(1)
@@ -79,7 +79,7 @@ struct ListView: View {
         }
         .background(.ultraThinMaterial)
         .frame(minWidth: 300)
-        .cornerRadius(10)
+        .cornerRadius(5)
     }
 }
 
