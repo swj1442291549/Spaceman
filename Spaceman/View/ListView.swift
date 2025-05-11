@@ -62,15 +62,16 @@ struct ListView: View {
                                     .fixedSize(horizontal: false, vertical: true)
                                 Spacer()
                             }
+                            .frame(height: 30)
+                            .frame(maxWidth: .infinity, alignment: .leading)
                             .background(
-                                Rectangle()
-                                    .fill(hoveredWindow?.pid == window.pid && hoveredWindow?.title == window.title ? Color.blue : Color.clear)
+                                hoveredWindow?.pid == window.pid && hoveredWindow?.title == window.title ? Color.blue : Color.clear
                             )
                             .contentShape(Rectangle())
                             .onHover { isHovered in
                                 if isHovered {
                                     hoveredWindow = (window.pid, window.title)
-                                } else {
+                                } else if hoveredWindow?.pid == window.pid && hoveredWindow?.title == window.title {
                                     hoveredWindow = nil
                                 }
                             }
