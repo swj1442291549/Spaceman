@@ -47,8 +47,11 @@ struct ListView: View {
                                 }
                                 Text(window.title)
                                     .lineLimit(1)
-                                    .font(.system(size: 14))
+                                    .font(.system(size: 14, weight: .regular))
+                                    .foregroundColor(.black)
                                     .frame(maxWidth: .infinity, alignment: .leading)
+                                    .padding(.trailing, 0)
+
                                 Spacer()
                             }
                             .contentShape(Rectangle())
