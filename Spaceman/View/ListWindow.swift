@@ -1,7 +1,7 @@
 import SwiftUI
 
 class ListWindow: NSWindow {
-    private static let windowWidth: CGFloat = 250
+    private static let windowWidth: CGFloat = 200
     private static let leftMargin: CGFloat = 32
     init(spaceObserver: SpaceObserver) {
         let windowWidth = Self.windowWidth

@@ -48,6 +48,7 @@ struct ListView: View {
                                 Text(window.title)
                                     .lineLimit(1)
                                     .font(.system(size: 14))
+                                    .frame(maxWidth: .infinity, alignment: .leading)
                                 Spacer()
                             }
                             .contentShape(Rectangle())
