@@ -11,11 +11,13 @@ struct ListView: View {
     @StateObject private var viewModel: ListViewModel
     private let spaceObserver: SpaceObserver
     var onHeightChange: (CGFloat) -> Void
+    private let minWidth: CGFloat
     @State private var contentHeight: CGFloat = 0
     
-    init(spaceObserver: SpaceObserver, onHeightChange: @escaping (CGFloat) -> Void = { _ in }) {
+    init(spaceObserver: SpaceObserver, minWidth: CGFloat, onHeightChange: @escaping (CGFloat) -> Void = { _ in }) {
         _viewModel = StateObject(wrappedValue: ListViewModel(spaceObserver: spaceObserver))
         self.spaceObserver = spaceObserver
+        self.minWidth = minWidth
         self.onHeightChange = onHeightChange
     }
     
@@ -82,13 +84,13 @@ struct ListView: View {
             }
         }
         .background(.ultraThinMaterial)
-        .frame(minWidth: 300)
+        .frame(minWidth: minWidth + 10)
         .cornerRadius(5)
     }
 }
 
 #Preview {
-    ListView(spaceObserver: SpaceObserver(), onHeightChange: { height in
+    ListView(spaceObserver: SpaceObserver(), minWidth: 300, onHeightChange: { height in
         print("ListView height: \(height)")
     })
 }

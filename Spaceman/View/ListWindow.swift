@@ -9,6 +9,7 @@ class ListWindow: NSWindow {
 
         let screenFrame = NSScreen.main?.visibleFrame ?? NSRect.zero
         let initialX = screenFrame.maxX - Self.leftMargin
+
         let initialY = screenFrame.minY + windowHeight / 2
 
         let initialFrame = NSRect(x: initialX, y: initialY, width: windowWidth, height: windowHeight)
@@ -28,7 +29,7 @@ class ListWindow: NSWindow {
         self.hasShadow = false
         self.collectionBehavior = [.canJoinAllSpaces, .stationary]
 
-        self.contentView = NSHostingView(rootView: ListView(spaceObserver: spaceObserver, onHeightChange: { [weak self] heightValue in
+        self.contentView = NSHostingView(rootView: ListView(spaceObserver: spaceObserver, minWidth: Self.windowWidth, onHeightChange: { [weak self] heightValue in
             if let strongSelf = self {
                 strongSelf.onHeightChange(newHeight: CGSize(width: Self.windowWidth, height: heightValue))
             }
