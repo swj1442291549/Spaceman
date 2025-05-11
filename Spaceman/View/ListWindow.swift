@@ -1,12 +1,14 @@
 import SwiftUI
 
 class ListWindow: NSWindow {
+    private static let windowWidth: CGFloat = 250
+    private static let leftMargin: CGFloat = 32
     init(spaceObserver: SpaceObserver) {
-        let windowWidth: CGFloat = 300
+        let windowWidth = Self.windowWidth
         let windowHeight: CGFloat = 400
 
         let screenFrame = NSScreen.main?.visibleFrame ?? NSRect.zero
-        let initialX = screenFrame.maxX - 32
+        let initialX = screenFrame.maxX - Self.leftMargin
         let initialY = screenFrame.minY + windowHeight / 2
 
         let initialFrame = NSRect(x: initialX, y: initialY, width: windowWidth, height: windowHeight)
@@ -28,7 +30,7 @@ class ListWindow: NSWindow {
 
         self.contentView = NSHostingView(rootView: ListView(spaceObserver: spaceObserver, onHeightChange: { [weak self] heightValue in
             if let strongSelf = self {
-                strongSelf.onHeightChange(newHeight: CGSize(width: windowWidth, height: heightValue))
+                strongSelf.onHeightChange(newHeight: CGSize(width: Self.windowWidth, height: heightValue))
             }
         }))
 
@@ -71,20 +73,34 @@ class ListWindow: NSWindow {
     }
     override func mouseEntered(with event: NSEvent) {
         super.mouseEntered(with: event)
-        shiftWindow(left: 300 - 32)
+        if originalFrame == nil {
+            originalFrame = self.frame
+        }
+        shiftWindowLeft(by: hoverShiftAmount)
     }
     override func mouseExited(with event: NSEvent) {
         super.mouseExited(with: event)
-        shiftWindow(left: 32)
+        restoreWindowPosition()
     }
-    private func shiftWindow(left: CGFloat) {
-        guard let screenFrame = self.screen?.visibleFrame ?? NSScreen.main?.visibleFrame else { return }
-        let newFrame = NSRect(x: screenFrame.maxX - left, y: self.frame.origin.y, width: self.frame.width, height: self.frame.height)
+    private func shiftWindowLeft(by amount: CGFloat) {
+        let newOriginX = self.frame.origin.x - amount
+        let newFrame = NSRect(x: newOriginX, y: self.frame.origin.y, width: self.frame.width, height: self.frame.height)
         DispatchQueue.main.async {
             self.setFrame(newFrame, display: true, animate: true)
         }
     }
+    private func restoreWindowPosition() {
+        guard let original = originalFrame else { return }
+        DispatchQueue.main.async {
+            self.setFrame(original, display: true, animate: true)
+        }
+        originalFrame = nil
+    }
     private var trackingArea: NSTrackingArea?
+    private var originalFrame: NSRect?
+    private var hoverShiftAmount: CGFloat {
+        return Self.windowWidth - Self.leftMargin
+    }
     private func setupTrackingArea() {
         if let trackingArea = trackingArea {
             self.contentView?.removeTrackingArea(trackingArea)
