@@ -48,12 +48,11 @@ struct ListView: View {
                                         .padding(.leading, -4)
                                 }
                                 Text(window.title)
-                                    .lineLimit(1)
                                     .font(.system(size: 14, weight: .regular))
                                     .foregroundColor(.black)
                                     .frame(maxWidth: .infinity, alignment: .leading)
-                                    .padding(.trailing, 0)
-
+                                    .lineLimit(1)
+                                    .clipped()
                                 Spacer()
                             }
                             .contentShape(Rectangle())
@@ -84,7 +83,7 @@ struct ListView: View {
             }
         }
         .background(.ultraThinMaterial)
-        .frame(minWidth: minWidth + 10)
+        .frame(minWidth: minWidth + 50)
         .cornerRadius(5)
     }
 }
