@@ -6,8 +6,7 @@ class ListWindow: NSWindow {
         let windowHeight: CGFloat = 400
 
         let screenFrame = NSScreen.main?.visibleFrame ?? NSRect.zero
-//        let initialX = screenFrame.maxX - 32
-        let initialX = 500.0
+        let initialX = screenFrame.maxX - 32
         let initialY = screenFrame.minY + windowHeight / 2
 
         let initialFrame = NSRect(x: initialX, y: initialY, width: windowWidth, height: windowHeight)
@@ -32,6 +31,13 @@ class ListWindow: NSWindow {
                 strongSelf.onHeightChange(newHeight: CGSize(width: windowWidth, height: heightValue))
             }
         }))
+
+        // Tracking area setup
+        setupTrackingArea()
+
+        // Observe contentView bounds changes
+        NotificationCenter.default.addObserver(self, selector: #selector(contentViewFrameDidChange), name: NSView.frameDidChangeNotification, object: self.contentView)
+        self.contentView?.postsFrameChangedNotifications = true
 
         // Force frame after display to avoid automatic repositioning
         DispatchQueue.main.async {
@@ -62,5 +68,32 @@ class ListWindow: NSWindow {
         DispatchQueue.main.async {
             self.setFrame(newFrame, display: true, animate: true)
         }
+    }
+    override func mouseEntered(with event: NSEvent) {
+        super.mouseEntered(with: event)
+        shiftWindow(left: 300 - 32)
+    }
+    override func mouseExited(with event: NSEvent) {
+        super.mouseExited(with: event)
+        shiftWindow(left: 32)
+    }
+    private func shiftWindow(left: CGFloat) {
+        guard let screenFrame = self.screen?.visibleFrame ?? NSScreen.main?.visibleFrame else { return }
+        let newFrame = NSRect(x: screenFrame.maxX - left, y: self.frame.origin.y, width: self.frame.width, height: self.frame.height)
+        DispatchQueue.main.async {
+            self.setFrame(newFrame, display: true, animate: true)
+        }
+    }
+    private var trackingArea: NSTrackingArea?
+    private func setupTrackingArea() {
+        if let trackingArea = trackingArea {
+            self.contentView?.removeTrackingArea(trackingArea)
+        }
+        let area = NSTrackingArea(rect: self.contentView?.bounds ?? .zero, options: [.mouseEnteredAndExited, .activeAlways, .inVisibleRect], owner: self, userInfo: nil)
+        self.contentView?.addTrackingArea(area)
+        trackingArea = area
+    }
+    @objc private func contentViewFrameDidChange() {
+        setupTrackingArea()
     }
 }
