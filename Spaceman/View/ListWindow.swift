@@ -9,8 +9,9 @@ class ListWindow: NSWindow {
 
         let screenFrame = NSScreen.main?.visibleFrame ?? NSRect.zero
         let initialX = screenFrame.maxX - Self.leftMargin
-
+//        let initialX = 600.0
         let initialY = screenFrame.minY + windowHeight / 2
+        
 
         let initialFrame = NSRect(x: initialX, y: initialY, width: windowWidth, height: windowHeight)
 
@@ -87,13 +88,19 @@ class ListWindow: NSWindow {
         let newOriginX = self.frame.origin.x - amount
         let newFrame = NSRect(x: newOriginX, y: self.frame.origin.y, width: self.frame.width, height: self.frame.height)
         DispatchQueue.main.async {
-            self.setFrame(newFrame, display: true, animate: true)
+            NSAnimationContext.runAnimationGroup { context in
+                context.duration = 0.1  // Reduced from default 0.25
+                self.animator().setFrame(newFrame, display: true)
+            }
         }
     }
     private func restoreWindowPosition() {
         guard let original = originalFrame else { return }
         DispatchQueue.main.async {
-            self.setFrame(original, display: true, animate: true)
+            NSAnimationContext.runAnimationGroup { context in
+                context.duration = 0.2  // Reduced from default 0.25
+                self.animator().setFrame(original, display: true)
+            }
         }
         originalFrame = nil
     }

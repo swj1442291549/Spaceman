@@ -33,7 +33,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		B2F696562DCDC0A8002858BD /* ListWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListWindow.swift; sourceTree = "<group>"; };
+		B2F696562DCDC0A8002858BD /* ListWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListWindow.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.simpleColoring; };
 		B2F696582DCDC0AF002858BD /* ListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListView.swift; sourceTree = "<group>"; };
 		B2F6965A2DCDC0B8002858BD /* ListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListViewModel.swift; sourceTree = "<group>"; };
 		E828E6542737CBA0007075E8 /* VisualEffectView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisualEffectView.swift; sourceTree = "<group>"; };

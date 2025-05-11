@@ -13,6 +13,8 @@ struct ListView: View {
     var onHeightChange: (CGFloat) -> Void
     private let minWidth: CGFloat
     @State private var contentHeight: CGFloat = 0
+    @State private var selectedWindow: (pid: pid_t, title: String)? = nil
+    @State private var hoveredWindow: (pid: pid_t, title: String)? = nil
     
     init(spaceObserver: SpaceObserver, minWidth: CGFloat, onHeightChange: @escaping (CGFloat) -> Void = { _ in }) {
         _viewModel = StateObject(wrappedValue: ListViewModel(spaceObserver: spaceObserver))
@@ -52,11 +54,25 @@ struct ListView: View {
                                     .foregroundColor(.black)
                                     .frame(maxWidth: .infinity, alignment: .leading)
                                     .lineLimit(1)
-                                    .clipped()
+                                    .fixedSize(horizontal: false, vertical: true)
                                 Spacer()
                             }
+                            .padding(.vertical, 4)
+                            .padding(.horizontal, 8)
+                            .background(
+                                RoundedRectangle(cornerRadius: 4)
+                                    .fill(hoveredWindow?.pid == window.pid && hoveredWindow?.title == window.title ? Color.blue.opacity(0.1) : Color.clear)
+                            )
                             .contentShape(Rectangle())
+                            .onHover { isHovered in
+                                if isHovered {
+                                    hoveredWindow = (window.pid, window.title)
+                                } else {
+                                    hoveredWindow = nil
+                                }
+                            }
                             .onTapGesture {
+                                selectedWindow = (window.pid, window.title)
                                 spaceObserver.activateWindow(pid: window.pid, title: window.title)
                             }
                         }
